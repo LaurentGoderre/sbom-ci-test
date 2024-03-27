@@ -8,13 +8,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Create SBOM
-        run: |
-          mkdir -p "$HOME/.local/bin"
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          export bin=docker-scout_1.6.3_linux_$(dpkg --print-architecture).tar.gz
-          curl -OL https://github.com/docker/scout-cli/releases/download/v1.6.3/$bin
-          tar -xvzf $bin -C "$HOME/.local/bin"
-          docker-scout sbom --format spdx fs:///${{ github.workspace }} > ${{ github.workspace }}/matomo.spdx.json
+        uses: docker/scout-action@v1
+        with:
+          command: sbom
+          format: spdx
+          image: fs:///${{ github.workspace }}
+          output: ${{ github.workspace }}/matomo.spdx.json
+          dockerhub-user: laurentgoderre689
+          dockerhub-password: ${{ secrets.DOCKER_SCOUT_PAT }}
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
